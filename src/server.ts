@@ -1,11 +1,12 @@
 import * as http from 'http'
 import { WebSocketServer } from 'ws'
 import { Message } from './interfaces/Message'
+import { connectDB } from './dbconnection'
 
 const server = http.createServer()
 const port = 1234
 const wss = new WebSocketServer({ server: server })
-
+connectDB()
 wss.on('connection', (ws) => {
   ws.on('message', (data, isBinary) => {
     const message = data.toString()
