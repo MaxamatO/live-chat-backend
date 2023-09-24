@@ -1,16 +1,24 @@
+import * as http from 'http'
 import { WebSocketServer } from 'ws'
 import { Message } from './interfaces/Message'
 
+const server = http.createServer()
 const port = 1234
-const wss = new WebSocketServer({ port })
-const message: Message = {
-  user: 'Jane doe',
-  message: 'I was sent using server resonse',
-  date: 'Sat Sep 23 2023 12:25:32 GMT+0200 (Central European Summer Time)',
-}
+const wss = new WebSocketServer({ server: server })
+
 wss.on('connection', (ws) => {
-  ws.on('message', (data) => {
-    console.log('Recieved: ', data)
-    ws.send(JSON.stringify(message))
+  ws.on('message', (data, isBinary) => {
+    const message = data.toString()
+    const messageToSend: Message = {
+      date: '19.09.2023',
+      message: message,
+      user: { username: 'Leon' },
+    }
+    console.log(message)
+    ws.send(JSON.stringify(messageToSend))
   })
+})
+
+server.listen(port, () => {
+  console.log(`HTTP server is lsitening on port ${port}`)
 })
