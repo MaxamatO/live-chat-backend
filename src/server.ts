@@ -1,25 +1,19 @@
-import * as http from 'http'
-import { WebSocketServer } from 'ws'
-import { Message } from './interfaces/Message'
+import { MessageInterface } from './interfaces/MessageInterface'
 import { connectDB } from './dbconnection'
+import express from 'express'
+import expressWs from 'express-ws'
+import { setupWebSocketRoutes } from './routes/websocketController'
+import { router } from './routes/restApiController'
 
-const server = http.createServer()
-const port = 1234
-const wss = new WebSocketServer({ server: server })
+const app = express()
+const PORT = 3000
+const wss = expressWs(app)
 connectDB()
-wss.on('connection', (ws) => {
-  ws.on('message', (data, isBinary) => {
-    const message = data.toString()
-    const messageToSend: Message = {
-      date: '19.09.2023',
-      message: message,
-      user: { username: 'Leon' },
-    }
-    console.log(message)
-    ws.send(JSON.stringify(messageToSend))
-  })
-})
 
-server.listen(port, () => {
-  console.log(`HTTP server is lsitening on port ${port}`)
+setupWebSocketRoutes(wss)
+
+app.use('/api', router)
+
+app.listen(PORT, () => {
+  console.log('Listening on port 3000')
 })
